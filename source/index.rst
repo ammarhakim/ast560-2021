@@ -13,11 +13,6 @@ problems have complex interactions of shocks, turbulence and magnetic
 fields and the schemes in these lectures help you solve equation to
 study such phenomena.
 
-References
-----------
-
-.. [LeVeque1992] R.J. LeVeque. "Numerical methods for conservation
-   laws". Birkhäuser, 1992.
-   
-.. [LeVeque2002] R.J. LeVeque. "Finite volume methods for hyperbolic
-   problems". Cambridge University Press, 2002. 
+The final couple of lectures will be an introduction to implicit
+methods to solve and couple diffusive and other non-ideal phenomena to
+hyperbolic PDE solvers.

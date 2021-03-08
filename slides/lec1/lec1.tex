@@ -35,6 +35,22 @@
 \newcommand{\mypause}{}
 \newcommand{\myb}[1]{{\color{blue} {#1}}}
 
+%% Commonly used macros
+\newcommand{\eqr}[1]{Eq.\thinspace(#1)}
+\newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pfracc}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pfraca}[1]{\frac{\partial}{\partial #1}}
+\newcommand{\pfracb}[2]{\partial #1/\partial #2}
+\newcommand{\pfracbb}[2]{\partial^2 #1/\partial #2^2}
+\newcommand{\spfrac}[2]{{\partial_{#1}} {#2}}
+\newcommand{\mvec}[1]{\mathbf{#1}}
+\newcommand{\gvec}[1]{\boldsymbol{#1}}
+\newcommand{\script}[1]{\mathpzc{#1}}
+\newcommand{\eep}{\mvec{e}_\phi}
+\newcommand{\eer}{\mvec{e}_r}
+\newcommand{\eez}{\mvec{e}_z}
+\newcommand{\iprod}[2]{\langle{#1}\rangle_{#2}}
+
 \DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
 
 %% Autoscaled figures
@@ -103,21 +119,175 @@
   vast to cover in few lectures!
 
 \end{frame}
+
 % ----------------------------------------------------------------
 
-\begin{frame}{No Free Luch Principle}
+\begin{frame}{No Free Lunch Principle}
 
   \begin{block}{No Free Lunch Principle}
     There is no \emph{unique} discrete system of equations
-    corresponding to a given system of equations. No discrete system
-    is perfect and a method that works well in one situation may not
-    work well in others.
+    corresponding to a given system of continuous equations. No
+    discrete system is perfect and a method that works well in one
+    situation may not work well in others.
   \end{block}
   \vskip0.1in%
   \mypause%
   ``All numerical methods suck, though some suck less than
   others. Make sure your method sucks less that your competition''
   
+\end{frame}
+
+% ----------------------------------------------------------------
+
+\begin{frame}{Dissipation, dispersion and robustness}
+  Typically, numerical methods trade between accuracy and
+  robustness. Very accurate schemes are not too robust and highly
+  robust schemes are typically not very accurate. Must find a balance.
+  \mypause%
+  \begin{itemize}
+  \item To capture shocks and sharp gradient features some localized
+    diffusion (dissipation) is needed via \emph{limiters} or some
+    other means. Some dissipation may also be needed for stability.
+  \item Dissipation typical leads to a loss of other properties: in
+    particular, for Maxwell equations it can cause EM energy to
+    \emph{decay}. For Euler equations high-k modes may get overdamped
+    due to limiters: not good for turbulence problems.%
+    \mypause%
+  \item An ideal situation is to apply dissipation only where it is
+    needed and use low-dissipation schemes elsewhere. However, this is
+    easier said than done. How to determine where to apply dissipation
+    is very tricky, specially in nonlinear complex flows. Ease to
+    confuse physical features for numerical artifacts (and
+    vice-versa!)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Hyperbolic PDEs describe phenomena that travel at finite
+    speed}
+  \footnotesize%
+  An intutive ``definition'' that we will initially work with before
+  stating the mathematically rigorous definition:
+  \begin{definition}[Hyperbolic PDEs ``Intuitive Definition'']
+    A hyperbolic PDE is one in which all phenomena travel at a finite
+    speed.
+  \end{definition}
+
+  \mypause%
+  \vskip0.1in%
+  Some prototypical examples we will look at more closely:
+  \begin{itemize}
+  \item Advection equation: simplest trivial \emph{linear} hyperbolic
+    equation. Trival but very important!
+  \item Maxwell equation of electromagnetism: linear hyperbolic system
+  \item Euler equations: probably historically the most important
+    \emph{nonlinear hyperbolic system}. Basis of vast literature on
+    numerical methods and basis for more complex equations: ideal MHD,
+    (general) relativistic hydro/MHD, Navier-Stokes solvers, etc. Need
+    to understand even if you want to follow literature and apply
+    methods to your own problem.
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Hyperbolic PDEs: rigorous definition, no reliance on
+    linearization}
+  Consider a system of conservation laws written as
+  \begin{align*}
+    \pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x} = 0.
+  \end{align*}
+  where $\mvec{Q}$ is a vector of conserved quantities and
+  $\mvec{F}(\mvec{Q})$ is a vector of fluxes. This system is called
+  \emph{hyperbolic} if the flux Jacobian
+  \begin{align*}
+    \mvec{A} \equiv \pfrac{\mvec{F}}{\mvec{Q}}
+  \end{align*}
+  has \emph{real eigenvalues} and a \emph{complete set of linearly
+    independent} eigenvectors. In multiple dimensions if $\mvec{F}_i$
+  are fluxes in direction $i$ then we need to show that arbitrary
+  linear combinations
+  $\sum_i n_i {\partial\mvec{F}_i}/{\partial\mvec{Q}}$ have real
+  eigenvalues and linearly independent set of eigenvectors.
+  
+\end{frame}
+
+\begin{frame}{To compute eigensystem often easier to work in
+    \emph{quasilinear form}}
+  To derive eigensystem it is sometimes easier to work in
+  non-conservative (quasi-linear) form of equations. Start with
+  \begin{align*}
+    \pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x} = 0.
+  \end{align*}
+  and introduce an invertible transform $\mvec{Q} = \varphi(\mvec{V})$
+  where $\mvec{V}$ are some other variables (for example: density,
+  velocity and pressure). Then the system converts to
+  \begin{align*}
+    \pfrac{\mvec{V}}{t} +
+    \underbrace{(\varphi^{\prime})^{-1} \mvec{A}\varphi^{\prime}}_{\mvec{B}}
+    \pfrac{\mvec{V}}{x} = 0.
+  \end{align*}
+  Can easily show eigenvalues of $\mvec{A}$ are same as that of
+  $\mvec{B}$ and right eigenvectors can be computed from
+  $\varphi^{\prime} \mvec{r}_p$ and left eigenvectors from
+  $\mvec{l}_p (\varphi^{\prime})^{-1}$.
+\end{frame}
+
+\begin{frame}{Example 1: Euler equations of invicid fluids}
+  \begin{align*}
+    \frac{\partial}{\partial{t}}    
+    \left[
+    \begin{matrix}
+      \rho \\
+      \rho u \\
+      \rho v \\
+      \rho w \\
+      E
+    \end{matrix}
+    \right]
+    +
+    \frac{\partial}{\partial{x}}
+    \left[
+    \begin{matrix}
+      \rho u \\
+      \rho u^2 + p \\
+      \rho uv \\
+      \rho uw \\
+      (E+p)u
+    \end{matrix}
+    \right]
+    =
+    0    
+  \end{align*}
+  Here $E = p/(\gamma-1) + \rho u^2/2$ is the total
+  energy. Eigenvalues of this system are $\{u-c_s,u,u,u,u+c_s \}$
+  where $c_s = \sqrt{\gamma p/rho}$ is the sound speed. See class
+  notes for left/right eigenvectors.%
+  \vskip0.1in%
+  Note: in the limit $p\rightarrow 0$ all eigenvalues become $u$ and
+  for cold-fluid ($p=0$) the system does not possess complete set of
+  eigenvectors. (Cold fluid model is important to model dust, for
+  example, in astrophysical systems or in say volcanic explosions).
+\end{frame}
+
+\begin{frame}{Example 2: Ideal MHD equations}
+  \footnotesize%
+  Ideal MHD equations are very important to both fusion and
+  astrophysical problems. Written in non-conservative form they are
+  \begin{align*}
+    \frac{\partial \rho}{\partial t}+ \mvec{u}\cdot\nabla\rho + \rho\nabla\cdot\mathbf{u}&=0 \\
+    \frac{\partial \mathbf{u}}{\partial t}+\mathbf{u} \cdot \nabla
+    \mathbf{u}
+    +\frac{\nabla p}{\rho} &=
+                             \color{blue}{\frac{1}{\mu_{0}\rho}(\nabla \times \mathbf{B}) \times \mathbf{B}} \\
+    \frac{\partial p}{\partial t}+\mathbf{u} \cdot \nabla p+\gamma p
+    \nabla \cdot \mathbf{u} &= 0 \\
+    \color{blue}{\frac{\partial \mathbf{B}}{\partial t}-\nabla \times(\mathbf{u} \times \mathbf{B})} &= \color{blue}{0}
+  \end{align*}
+  with the constraint $\nabla\cdot\mvec{B} = 0$. The eigensystem is
+  complicated to compute! (Try doing it yourself). Eigenvalues are
+  $u\pm c_f$, $u\pm c_s$, $u\pm c_a$, and $u$ (7 eigenvalues for 8
+  equations). Here $c_f$, $c_s$ are the fast/slow magnetosonic speeds
+  and $c_a$ is the Alfven speed. See Ryu and Jones ApJ {\bf 442}
+  228-258, 1995 (linked on website).
 \end{frame}
 
 \end{document}

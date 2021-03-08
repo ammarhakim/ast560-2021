@@ -10,8 +10,8 @@ equations and the Vlasov-Maxwell system). We will look at schemes
 suited to shock dominated flows rather than problems on resistive
 time-scales. Vast majority of laboratory, space and astrophysical
 problems have complex interactions of shocks, turbulence and magnetic
-fields and the schemes in these lectures help you solve equation to
-study such phenomena.
+fields and the schemes in these lectures will help you solve equation
+to study such phenomena.
 
 The final couple of lectures will be an introduction to implicit
 methods to solve and couple diffusive and other non-ideal phenomena to

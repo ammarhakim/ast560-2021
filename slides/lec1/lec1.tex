@@ -1,0 +1,139 @@
+\documentclass[aspectratio=169]{beamer}
+%\documentclass[aspectratio=43]{beamer}
+
+\usepackage{graphicx}  % Required for including images
+\usepackage{natbib}
+\usepackage{booktabs} % Top and bottom rules for tables
+\usepackage{amssymb,amsthm,amsmath}
+\usepackage{exscale}
+\usepackage{natbib}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{bm}
+% Setup TikZ
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\tikzstyle{block}=[draw opacity=0.7,line width=1.4cm]
+% Setup hyperref
+\usepackage{hyperref}
+\hypersetup{colorlinks=true}
+\hypersetup{citecolor=porange}
+\hypersetup{urlcolor=porange!80!}
+\hypersetup{linkcolor=porange}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{principle}{Principle}
+
+%% Writing quarters
+\newcommand{\wQ}[1]{{\textcolor{white}{Q#1}}}
+\newcommand{\bQ}[1]{{Q#1}}
+
+% Uncomment appropriate command to disable/enable hiding
+%\newcommand{\mypause}{\pause}
+\newcommand{\mypause}{}
+\newcommand{\myb}[1]{{\color{blue} {#1}}}
+
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+%% Autoscaled figures
+\newcommand{\incfig}{\centering\includegraphics}
+\setkeys{Gin}{width=0.9\linewidth,keepaspectratio}
+
+%Make the items smaller
+\newcommand{\cramplist}{
+	\setlength{\itemsep}{0in}
+	\setlength{\partopsep}{0in}
+	\setlength{\topsep}{0in}}
+\newcommand{\cramp}{\setlength{\parskip}{.5\parskip}}
+\newcommand{\zapspace}{\topsep=0pt\partopsep=0pt\itemsep=0pt\parskip=0pt}
+
+\newcommand{\backupbegin}{
+   \newcounter{finalframe}
+   \setcounter{finalframe}{\value{framenumber}}
+}
+\newcommand{\backupend}{
+   \setcounter{framenumber}{\value{finalframe}}
+}
+
+\usetheme[bullet=circle,% Use circles instead of squares for bullets.
+          titleline=true,% Show a line below the frame title.
+          ]{Princeton}
+
+\title[{\tt }]{Hyperbolic PDEs and Finite-Volume Methods I}%
+\author[https://ast560.rtfd.io]%
+{Ammar H. Hakim ({\tt ammar@princeton.edu}) \inst{1}}%
+
+\institute[PPPL]
+{ \inst{1} Princeton Plasma Physics Laboratory, Princeton, NJ %
+}
+
+\date[2/9/2021]{Princeton University, Course AST560, Spring 2021}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+%----------------------------------------------------------------
+\begin{frame}{Goal: Methods for solution of hyperbolic/mixed PDEs}
+
+  Hyperbolic (or mixed) PDEs appear everywhere in physics and
+  engineering: Euler equations, Navier-Stokes equations, MHD
+  equations, Einstein's equation of general relativity, shallow-water
+  equations, ....%
+  \mypause%
+  \begin{itemize}
+  \item Describe phenomena that travel with \emph{finite-speed}:
+    clearly all fundamental physics must obey causality, hence
+    hyperbolic systems are fundamental (though approximations of
+    hyperbolic equations may violate finite-speed constraint).
+    \mypause%
+  \item Display very rich structure shocks and other discontinuities,
+    instabilities, turbulence ... and in most problems, a mix of all!
+    \mypause%
+  \item Specialized methods are needed to solve such systems: naive
+    algorithms can {\bf cause disaster}!
+  \end{itemize}
+  \mypause%
+  My goal is to develop \emph{conceptual} understanding about such
+  equations and numerical methods to solve them. Literature is too
+  vast to cover in few lectures!
+
+\end{frame}
+% ----------------------------------------------------------------
+
+\begin{frame}{No Free Luch Principle}
+
+  \begin{block}{No Free Lunch Principle}
+    There is no \emph{unique} discrete system of equations
+    corresponding to a given system of equations. No discrete system
+    is perfect and a method that works well in one situation may not
+    work well in others.
+  \end{block}
+  \vskip0.1in%
+  \mypause%
+  ``All numerical methods suck, though some suck less than
+  others. Make sure your method sucks less that your competition''
+  
+\end{frame}
+
+\end{document}
+
+
+\begin{frame}{}
+\end{frame}
+
+\begin{columns}
+  
+  \begin{column}{0.6\linewidth}
+  \end{column}
+  
+  \begin{column}{0.4\linewidth}
+    \includegraphics[width=\linewidth]{fig/Kinsey_2011_Pfus_vs_T.pdf}
+  \end{column}
+\end{columns}
+
+% ----------------------------------------------------------------

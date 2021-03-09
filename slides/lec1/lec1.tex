@@ -10,7 +10,10 @@
 \usepackage{tikz}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{animate}
 \usepackage{bm}
+\usepackage{etoolbox}
+
 % Setup TikZ
 \usepackage{tikz}
 \usetikzlibrary{arrows}
@@ -133,7 +136,7 @@
   \vskip0.1in%
   \mypause%
   ``All numerical methods suck, though some suck less than
-  others. Make sure your method sucks less that your competition''
+  others. Make sure your method sucks less that the competition''
   
 \end{frame}
 
@@ -150,7 +153,7 @@
     other means. Some dissipation may also be needed for stability.
   \item Dissipation typical leads to a loss of other properties: in
     particular, for Maxwell equations it can cause EM energy to
-    \emph{decay}. For Euler equations high-k modes may get overdamped
+    \emph{decay}. For Euler equations high-k modes may get over-damped
     due to limiters: not good for turbulence problems.%
     \mypause%
   \item An ideal situation is to apply dissipation only where it is
@@ -164,8 +167,8 @@
 
 \begin{frame}{Hyperbolic PDEs describe phenomena that travel at finite
     speed}
-  \footnotesize%
-  An intutive ``definition'' that we will initially work with before
+  \small%
+  An intuitive ``definition'' that we will initially work with before
   stating the mathematically rigorous definition:
   \begin{definition}[Hyperbolic PDEs ``Intuitive Definition'']
     A hyperbolic PDE is one in which all phenomena travel at a finite
@@ -177,7 +180,7 @@
   Some prototypical examples we will look at more closely:
   \begin{itemize}
   \item Advection equation: simplest trivial \emph{linear} hyperbolic
-    equation. Trival but very important!
+    equation. Trivial but very important!
   \item Maxwell equation of electromagnetism: linear hyperbolic system
   \item Euler equations: probably historically the most important
     \emph{nonlinear hyperbolic system}. Basis of vast literature on
@@ -231,7 +234,118 @@
   $\mvec{l}_p (\varphi^{\prime})^{-1}$.
 \end{frame}
 
-\begin{frame}{Example 1: Euler equations of invicid fluids}
+\begin{frame}{Burgers' equation}
+  \footnotesize%
+  Simplest nonlinear scalar equation, has a quadratic nonlinearity:
+  \begin{align*}
+    \pfrac{u}{t} + \frac{\partial}{\partial x}\bigg( \frac{1}{2} u^2
+    \bigg) = 0.
+  \end{align*}
+  Eigenvalue $\lambda = u$. Note that locally, eigenvalue depends on
+  the solution itself: leads to a situation in which after some finite
+  time to the formation of a \emph{shock} as the ``characteristics''
+  will intersect.
+  \begin{figure}
+    \setkeys{Gin}{width=0.5\linewidth,keepaspectratio}
+    \incfig{burgers-char.pdf}
+  \end{figure}  
+\end{frame}
+
+\begin{frame}{Burgers' equation: shock formation}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      Due to varying characteristics speed (eigenvalue) the solution
+      can ``pile up'' leading to the formation of a shock.
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \setkeys{Gin}{width=1.0\linewidth,keepaspectratio}
+        \incfig{burgers-shock.png}        
+      \end{figure}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{Weak-solutions and entropy conditions}
+  \footnotesize%
+  At a shock the solution has a discontinuity. Hence, derivatives are
+  not defined! Differential form of the equations break-down. We must
+  use concept of weak-solutions in this case.%
+  \vskip0.1in%
+  \mypause%
+  Let $\phi(x,t)$ is a compactly supported (i.e. zero outside some
+  bounded region) smooth function (enough continuous
+  derivatives). Then multiply conservation law
+  \begin{align*}
+    \int_0^\infty  \int_{-\infty}^\infty \phi(x,t)
+    \bigg[\pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x}\bigg]\thinspace
+    dx\thinspace dt = 0
+  \end{align*}
+  by $\phi(x,t)$ and integrating by parts to get the \emph{weak-form}
+  \begin{align*}
+    \int_0^\infty  \int_{-\infty}^\infty 
+    \bigg[\pfrac{\phi}{t} \mvec{Q} + \pfrac{\phi}{x} \mvec{F}\bigg]\thinspace
+    dx\thinspace dt
+    =
+    -
+    \int_{-\infty}^\infty \phi(x,0) \mvec{Q}(x,0) dx\thinspace dt.
+  \end{align*}  
+  \begin{definition}[Weak-solution]
+    A function $\mvec{Q}(x,t)$ is said to be a weak-solution if it
+    satisfies the weak-form for all compact, smooth $\phi(x,t)$.
+  \end{definition}
+  
+\end{frame}
+
+\begin{frame}{Weak-solutions and entropy conditions}
+  Unfortunately, weak-solutions are not unique! Why does this happen?
+  \vskip0.1in%
+  \mypause In physical problems there is always some non-ideal effects
+  (viscosity, Landau damping etc) that does not allow a genuine
+  discontinuity to form. However, this ``viscous shock layer'' can be
+  extremely thin compared to system size. Also, we know entropy must
+  increase in the physical universe.
+
+  \mypause%
+  \vskip0.1in%
+  This indicates we can recover uniqueness in two ways
+  \begin{itemize}
+  \item {\color{gray}{Add a viscous (diffusion) term and take limit of
+      viscosity going to zero. (Generally not convenient for numerical
+      work)}}%
+  \mypause%
+  \item Impose \emph{entropy condition}: construct an \emph{entropy}
+    function such that it remains conserved for smooth solutions but
+    \emph{increases} across a shock. Entropy is naturally suggested in
+    most physical problems.
+  \end{itemize}  
+\end{frame}
+
+\begin{frame}{Weak-solutions and entropy conditions}
+  \small%
+  When characteristics \emph{diverge} (right plot below) the
+  weak-solution is not unique. A false ``shock'' solution also is a
+  weak-solution. Imposing \emph{entropy condition} gives a
+  \emph{rarefaction} wave seen in the right plot.
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \setkeys{Gin}{width=1.0\linewidth,keepaspectratio}
+        \incfig{burgers-step-a.png}
+      \end{figure}      
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \setkeys{Gin}{width=1.0\linewidth,keepaspectratio}
+        \incfig{burgers-step-b.png}
+      \end{figure}
+    \end{column}
+  \end{columns}  
+\end{frame}
+
+\begin{frame}{Euler equations of invicid fluids}
   \begin{align*}
     \frac{\partial}{\partial{t}}    
     \left[
@@ -240,7 +354,7 @@
       \rho u \\
       \rho v \\
       \rho w \\
-      E
+      \mathcal{E}
     \end{matrix}
     \right]
     +
@@ -251,13 +365,13 @@
       \rho u^2 + p \\
       \rho uv \\
       \rho uw \\
-      (E+p)u
+      (\mathcal{E}+p)u
     \end{matrix}
     \right]
     =
     0    
   \end{align*}
-  Here $E = p/(\gamma-1) + \rho u^2/2$ is the total
+  Here $\mathcal{E} = p/(\gamma-1) + \rho u^2/2$ is the total
   energy. Eigenvalues of this system are $\{u-c_s,u,u,u,u+c_s \}$
   where $c_s = \sqrt{\gamma p/rho}$ is the sound speed. See class
   notes for left/right eigenvectors.%
@@ -268,8 +382,57 @@
   example, in astrophysical systems or in say volcanic explosions).
 \end{frame}
 
-\begin{frame}{Example 2: Ideal MHD equations}
+\begin{frame}{Euler equations: transport of kinetic energy}
   \footnotesize%
+  The energy conservation equation for Euler equation is
+  \begin{align*}
+    \pfrac{\mathcal{E}}{t} + \nabla\cdot\left[(\mathcal{E}+p)\mvec{u} \right] = 0
+  \end{align*}
+  where
+  \begin{align*}
+    \mathcal{E} =
+    \underbrace{\frac{p}{\gamma-1}}_{\textrm{IE}} +
+    \underbrace{\frac{1}{2}\rho u^2}_{\textrm{KE}}
+    .
+  \end{align*}
+  \mypause%
+  We can derive instead a \emph{balance law} (not conservation law)
+  for transport of KE
+  \begin{align*}
+    \frac{\partial}{\partial t}\left(\frac{1}{2}\rho u^2 \right)
+    +
+    \nabla\cdot\left(\frac{1}{2}\rho u^2 \mvec{u} \right)
+    =
+    -\mvec{u}\cdot\nabla p
+    \color{gray}{ + \frac{q}{m}\rho \mvec{u}\cdot\mvec{\mvec{E}}}
+  \end{align*}
+  \mypause%
+  For turbulence calculations it is important to ensure that in the
+  \emph{numerics} exchange of kinetic and internal energy (and in case
+  of plasma field-particle energy) is only via the RHS terms (pressure
+  work and work done by electric field).%
+  \vskip0.1in%
+  Many shock-capturing and higher-order methods can mess this up for
+  high-$k$ (short wavelength) modes due leading to incorrect energy
+  spectra. (No Free Lunch Principle).
+\end{frame}
+
+\begin{frame}{Euler equations: shocks, rarefactions and contacts}
+  In addition to shocks and rarefactions which we saw in Burgers's
+  equation, Euler equations also support \emph{contact
+    discontinuities}, across which density has a jump but not pressure
+  or velocity.
+  \begin{figure}
+    \setkeys{Gin}{width=0.33\linewidth,keepaspectratio}
+    \incfig{sod-density.png}
+    \incfig{sod-pressure.png}
+    \incfig{sod-vel.png}    
+  \end{figure}    
+\end{frame}
+
+\begin{frame}{Ideal MHD equations}
+  % \footnotesize%
+  \small%
   Ideal MHD equations are very important to both fusion and
   astrophysical problems. Written in non-conservative form they are
   \begin{align*}

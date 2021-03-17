@@ -1,0 +1,41 @@
+* Lecture outline
+
+- Start with some pretty pictures and a movie
+- Show defn of Riemann problem and essence of FV scheme; switch to
+  iPad & show how to solve linear systems in 1D exactly
+- FV methods overview on iPad (?), including 1st order method for
+  linear advection; show results and diffusion in scheme; then switch
+  to slides
+- Switch back to iPad to talk about general recovery idea; show
+  example of central difference scheme coming from symmetric recovery
+  across two cells; outline idea of 4 cell symmetric recovery and 3
+  cell left/right biased recovery
+- Slides for fourth-order recovery; Taylor series analysis; dispersion
+  and diffusion in connection to numerical dispersion relation; if
+  time: show diffusion in upwind biased recovery
+- End with history and why this stuff is important
+
+* Homework Problems
+
+State linearization approach; defn of hyperbolic equations and
+weak-form.
+
+** Problem 1: Compute EV of 1D Euler equations
+
+Compute eigenvectors also.
+
+** Problem 2: Linearize 1D Euler equations + dispersive source terms
+
+Compute exact solution to step-function and make plots
+
+** Problem 3: (Optional; Challenging) Compute EV of ideal MHD equations
+
+Do it in primitive form and not conservative form.
+
+** Problem 4: Shock & rarefaction solutions for Burgers' equation
+
+Show shock solution is a weak-solution of the Burgers' equation. Show
+rarefaction wave solution satisfies PDE;
+
+** Problem 5: 
+

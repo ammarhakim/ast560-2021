@@ -1,0 +1,162 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{geometry}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\geometry{verbose,letterpaper,textheight=9in,textwidth=6.5in}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{wrapfig}%%enable enable 
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{sidecap}
+\usepackage{pdfpages}
+\usepackage[font={footnotesize}]{caption}
+%\usepackage[framemethod=tikz]{mdframed}
+\def\bibfont{\footnotesize}
+%\setlength{\bibsep}{0.0pt}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+\newtheorem{principle}{Principle}
+
+% Set the margins
+\RequirePackage{geometry}
+\geometry{letterpaper,includehead,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\geometry{headsep=2ex}
+
+\newcommand{\grad}{\nabla}
+\newcommand{\ignore}[1]{}  % ignore a section.
+
+% Handy commands for notes and 'to do' items 
+\newcommand{\todo}[1]{{\color{red}\bf [TODO: #1]}}
+\newcommand{\note}[2]{{\color{blue} \textsf{[#1] #2}}}
+\newcommand\tocite[1]{{[CITE: #1]}}
+
+% For a clean copy, ignore these:
+%\newcommand{\todo}[1]{}
+%\newcommand{\note}[2]{}
+%\newcommand\tocite[1]{}
+
+%% Writing quarters
+\newcommand{\wQ}[1]{{\textcolor{white}{Q#1}}}
+\newcommand{\bQ}[1]{{Q#1}}
+
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+%% Autoscaled figures
+\newcommand{\incfig}{\centering\includegraphics}
+\setkeys{Gin}{width=0.9\linewidth,keepaspectratio}
+
+%% Commonly used macros
+\newcommand{\eqr}[1]{Eq.\thinspace(#1)}
+\newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
+% \newcommand{\pfracc}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pfraca}[1]{\frac{\partial}{\partial #1}}
+\newcommand{\pfracb}[2]{\partial #1/\partial #2}
+% \newcommand{\pfracbb}[2]{\partial^2 #1/\partial #2^2}
+% \newcommand{\spfrac}[2]{{\partial_{#1}} {#2}}
+% \newcommand{\mvec}[1]{\mathbf{#1}}
+\newcommand{\gvec}[1]{\boldsymbol{#1}}
+% \newcommand{\script}[1]{\mathpzc{#1}}
+% \newcommand{\gke}{{\tt Gkeyll}}
+\newcommand{\gcs}{\nabla_{\mvec{x}}}
+\newcommand{\gvs}{\nabla_{\mvec{v}}}
+
+% Other stuff
+%\usepackage{units}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+
+\usepackage{tabularx}
+\usepackage{mdwlist} % enumerate*, itemize* squeeze vertical space
+
+\newcommand{\comment}[1]{\textit{\textcolor{red}{#1}}}
+\renewcommand{\comment}[1]{}
+
+% Turn off red comments by uncommenting the following line:
+%\renewcommand{\comment}[1]{}
+
+%% Autoscaled figures
+%\newcommand{\incfig}{\centering\includegraphics}
+\setkeys{Gin}{width=0.9\linewidth,keepaspectratio}
+\newcommand{\gke}{{\tt Gkeyll}}
+%\newcommand{\gke}{{\textsc{Gkeyll}}}
+\newcommand{\mvec}[1]{\mathbf{#1}}
+
+%Make the items smaller
+\newcommand{\cramplist}{
+	\setlength{\itemsep}{0in}
+	\setlength{\partopsep}{0in}
+	\setlength{\topsep}{0in}}
+\newcommand{\cramp}{\setlength{\parskip}{.5\parskip}}
+\newcommand{\zapspace}{\topsep=0pt\partopsep=0pt\itemsep=0pt\parskip=0pt}
+
+\title{Hyperbolic PDEs and Finite-Volume Methods. Homework Set I}%
+\author{Ammar Hakim}%
+\date{}%
+
+\begin{document}
+\maketitle
+
+Intuitively, hyperbolic PDEs describe phenomena that propagate with
+finite speed. One way to check this is to \emph{linearize} the
+equations and compute the dispersion relation for propagation of small
+amplitude waves. A system linearized $p$ hyperbolic equations will
+have dispersion relations of the form $\omega^p = c_0^p k$ where
+$c_0^p$ are the speeds computed from the equilibrium quantities. Note
+that the phase and group velocities for linear waves are the same for
+hyperbolic systems.
+
+\begin{definition}[Hyperbolic PDEs]
+  Consider a system of conservation laws written as
+  \begin{align}
+    \pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x} = 0. \label{eq:hyp-law}
+  \end{align}
+  where $\mvec{Q}$ is a vector of conserved quantities and
+  $\mvec{F}(\mvec{Q})$ is a vector of fluxes. This system is called
+  \emph{hyperbolic} if the flux Jacobian
+  \begin{align*}
+    \mvec{A} \equiv \pfrac{\mvec{F}}{\mvec{Q}}
+  \end{align*}
+  has \emph{real eigenvalues} and a \emph{complete set of linearly
+    independent} eigenvectors. A hyperbolic system is called
+  \emph{strictly hyperbolic} if all eigenvalues are distinct.
+\end{definition}
+
+As the solution to hyperbolic PDEs can develop discontinuities we need
+to instead consider a broader class of solutions than those supported
+by the PDE (as derivatives are not defined at
+discontinuities). Instead we must use the concept of
+\emph{weak-solutions}, defined below.
+
+\begin{definition}[Weak-solution]
+  Let $\phi(x,t)$ be a compactly supported (i.e. zero outside some
+  bounded region) smooth function (enough continuous
+  derivatives). Then
+  \begin{align*}
+    \int_0^\infty  \int_{-\infty}^\infty 
+    \bigg[\pfrac{\phi}{t} \mvec{Q} + \pfrac{\phi}{x} \mvec{F}\bigg]\thinspace
+    dx\thinspace dt
+    =
+    -
+    \int_{-\infty}^\infty \phi(x,0) \mvec{Q}(x,0) dx.
+  \end{align*}
+  is called the \emph{weak-form} of the conservation law
+  \eqr{\ref{eq:hyp-law}}. A function $\mvec{Q}(x,t)$ is said to be a
+  weak-solution if it satisfies the weak-form for all compact, smooth
+  $\phi(x,t)$.
+\end{definition}
+\noindent You should be able to derive this expression starting from
+\eqr{\ref{eq:hyp-law}}.
+
+\end{document}

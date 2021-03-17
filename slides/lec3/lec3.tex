@@ -1,0 +1,307 @@
+\documentclass[aspectratio=169]{beamer}
+%\documentclass[aspectratio=43]{beamer}
+
+\usepackage{graphicx}  % Required for including images
+\usepackage{natbib}
+\usepackage{booktabs} % Top and bottom rules for tables
+\usepackage{amssymb,amsthm,amsmath}
+\usepackage{exscale}
+\usepackage{natbib}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{animate}
+\usepackage{bm}
+\usepackage{etoolbox}
+
+% Setup TikZ
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\tikzstyle{block}=[draw opacity=0.7,line width=1.4cm]
+% Setup hyperref
+\usepackage{hyperref}
+\hypersetup{colorlinks=true}
+\hypersetup{citecolor=porange}
+\hypersetup{urlcolor=porange!80!}
+\hypersetup{linkcolor=porange}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{principle}{Principle}
+
+%% Writing quarters
+\newcommand{\wQ}[1]{{\textcolor{white}{Q#1}}}
+\newcommand{\bQ}[1]{{Q#1}}
+
+% Uncomment appropriate command to disable/enable hiding
+%\newcommand{\mypause}{\pause}
+\newcommand{\mypause}{}
+\newcommand{\myb}[1]{{\color{blue} {#1}}}
+
+%% Commonly used macros
+\newcommand{\eqr}[1]{Eq.\thinspace(#1)}
+\newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pfracc}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pfraca}[1]{\frac{\partial}{\partial #1}}
+\newcommand{\pfracb}[2]{\partial #1/\partial #2}
+\newcommand{\pfracbb}[2]{\partial^2 #1/\partial #2^2}
+\newcommand{\spfrac}[2]{{\partial_{#1}} {#2}}
+\newcommand{\mvec}[1]{\mathbf{#1}}
+\newcommand{\gvec}[1]{\boldsymbol{#1}}
+\newcommand{\script}[1]{\mathpzc{#1}}
+\newcommand{\eep}{\mvec{e}_\phi}
+\newcommand{\eer}{\mvec{e}_r}
+\newcommand{\eez}{\mvec{e}_z}
+\newcommand{\iprod}[2]{\langle{#1}\rangle_{#2}}
+
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+%% Autoscaled figures
+\newcommand{\incfig}{\centering\includegraphics}
+\setkeys{Gin}{width=0.9\linewidth,keepaspectratio}
+
+%Make the items smaller
+\newcommand{\cramplist}{
+	\setlength{\itemsep}{0in}
+	\setlength{\partopsep}{0in}
+	\setlength{\topsep}{0in}}
+\newcommand{\cramp}{\setlength{\parskip}{.5\parskip}}
+\newcommand{\zapspace}{\topsep=0pt\partopsep=0pt\itemsep=0pt\parskip=0pt}
+
+\newcommand{\backupbegin}{
+   \newcounter{finalframe}
+   \setcounter{finalframe}{\value{framenumber}}
+}
+\newcommand{\backupend}{
+   \setcounter{framenumber}{\value{finalframe}}
+}
+
+\usetheme[bullet=circle,% Use circles instead of squares for bullets.
+          titleline=true,% Show a line below the frame title.
+          ]{Princeton}
+
+\title[{\tt }]{Hyperbolic PDEs and Finite-Volume Methods III}%
+\author[https://ast560.rtfd.io]%
+{Ammar H. Hakim ({\tt ammar@princeton.edu}) \inst{1}}%
+
+\institute[PPPL]
+{ \inst{1} Princeton Plasma Physics Laboratory, Princeton, NJ %
+}
+
+\date[3/18/2021]{Princeton University, Course AST560, Spring 2021}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{The Riemann Problem for hyperbolic PDEs}
+  \small%
+  The Riemann problem is a class of \emph{initial value} problems for
+  a hyperbolic PDE
+  \begin{align*}
+    \pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x} = 0.
+  \end{align*}
+  on $x\in[-\infty,\infty]$ with initial conditions
+  \begin{align*}
+    \mvec{Q}(x,0) = \mvec{Q}_R \quad x>0 \\
+    \mvec{Q}(x,0) = \mvec{Q}_L \quad x<0    
+  \end{align*}
+  where $\mvec{Q}_{L,R}$ are \emph{constant} initial states.%
+  \begin{itemize}
+  \item Fundamental mathematical problem in theory of hyperbolic PDEs:
+    brings out the key structure of the nonlinear solutions of the
+    system.
+  \item For some important systems like (relativisitic) Euler
+    equations, ideal MHD the Riemann problem can be solved
+    \emph{exactly} (modulo some nonlinear root-finding).
+  \item Good test for shock-capturing schemes as it tests ability to
+    capture discontinuities and complex non-linear phenomena.
+  \end{itemize}
+\end{frame}  
+
+\begin{frame}{Essence of the finite-volume method}
+  \small%
+  Consider a PDE of the form (non necessarily hyperbolic)
+  \begin{align*}
+    \pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x} = 0.    
+  \end{align*}
+  Now make a grid with cells $I_j = [x_{j-1},x_{j+1/2}]$ and
+  $\Delta x = x_{j+1/2} - x_{j-1/2}$. The finite-volume method
+  \emph{usually} evolves the cell-averages of the solution:
+  \begin{align*}
+    \pfrac{\mvec{Q}_j}{t} + \frac{\mvec{F}_{j+1/2} -\mvec{F}_{j-1/2} }{\Delta x} = 0
+  \end{align*}
+  where
+  \begin{align*}
+    \mvec{Q}_j(t) \equiv \frac{1}{\Delta x}\int_{I_j} \mvec{Q}(x,t) \thinspace dx
+  \end{align*}
+  are the \emph{cell-averages} and
+  \begin{align*}
+    \mvec{F}_{j\pm 1/2} \equiv \mvec{F}(\mvec{Q}_{j\pm 1/2})
+  \end{align*}
+  are at cell interfaces.
+
+\end{frame}
+
+\begin{frame}{Essence of the finite-volume method}
+  \small%
+  The finite-volume method \emph{usually} evolves the cell-averages of
+  the solution:
+  \begin{align*}
+    \pfrac{\mvec{Q}_j}{t} + \frac{\mvec{F}_{j+1/2} -\mvec{F}_{j-1/2} }{\Delta x} = 0
+  \end{align*}
+  This equation is an \emph{exact} evolution equation for the
+  cell-averages.\mypause%
+  However, notice that
+  \begin{itemize}
+  \item We only know cell-averages $\mvec{Q}_{j}$ in each cell; we
+    \emph{do not} know the \emph{cell-edge} values
+    $\mvec{Q}_{j\pm 1/2}$ needed to compute the flux
+    $\mvec{F}_{j\pm 1/2}$.%
+    \mypause%
+  \item The finite-volume method consists of determining these
+    \emph{edge values} and \emph{constructing a numerical-flux} so the
+    cell-averages can be updated.
+  \item Time-stepping can be done with a ODE solver (method-of-lines)
+    or using a \emph{single-step} method (fully discrete scheme).
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Cell-averages v/s cell-center values}
+  \small%
+  \begin{itemize}
+  \item Typically, finite-volume schemes evolve the cell-average
+    values; finite-difference schemes evolve nodal values.%
+    \mypause%
+  \item For some low-order (first and some second-order) schemes the
+    \emph{forms} of the scheme may look superficially the
+    same. However, this is not true in general and one must \emph{very
+      carefully} distinguish between cell-average and point-wise
+    values. Otherwise incorrect schemes can result that ``look okay''
+    but do not achieve full accuracy.%
+    \mypause%
+  \item What we evolve (cell-average, nodal values or in DG moments or
+    interior node values) is called the \emph{solution
+      representation}.
+  \end{itemize}
+  \begin{block}{Remember Your Representation}
+    When studying or designing numerical schemes {\bf never} confuse
+    one solution representation for another.
+  \end{block}  
+\end{frame}
+
+\begin{frame}{Finite-Volume method computes \emph{mean} of flux gradient}
+  To derive the basic form of the scheme we did
+  \begin{align*}
+    \frac{1}{\Delta x}\int_{I_j} \pfrac{F}{x} \thinspace dx =
+    \frac{F_{j+1/2}-F_{j-1/2}}{\Delta x}.
+  \end{align*}
+  \begin{itemize}
+  \item Notice that the left-hand side is the \emph{mean} of the flux
+    gradient in the cell $I_j$
+  \item Hence, in effect, the FV scheme is computing the \emph{mean}
+    of the flux gradient and not the flux gradient itself. This is
+    then used to update \emph{cell-average} of the solution.
+  \item This is important to remember when computing source terms;
+    making plots or computing diagnostics. (Remember Your
+    Representation!).
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Example: How to compute mean of \emph{product} of
+    values?}
+  \begin{itemize}
+  \item Given cell-average values $Q_j$ and $V_j$ how can you compute
+    cell-average value $(QV)_j$?%
+    \mypause%
+  \item Clearly, $(Q V)_j$ is not the same as $Q_j V_j$.%
+    \mypause%
+  \item In general, depending on the order of the scheme one has to
+    \emph{recover} $Q(x)$ and $V(x)$ to sufficiently high order in a
+    cell, multiply then and then compute the average of the
+    product. Potential complications when solutions are not smooth
+    enough.
+  \item Almost never done! However, it may be important when trying to
+    extract delicate information from simulations like turbulence
+    spectra etc.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Essence of the finite-volume method}
+  \footnotesize
+  \begin{columns}
+  
+    \begin{column}{0.5\linewidth}
+      Instead of computing one edge value we will compute \emph{two}
+      values: one the left and one on right of cell-edge. We will next
+      define a \emph{numerical flux function}
+      \begin{align*}
+        \mvec{G} = \mvec{G}(\mvec{Q}^{-}_{j+1/2},\mvec{Q}^{+}_{j+1/2})
+      \end{align*}
+      with \emph{consistency} condition
+      \begin{align*}
+        \lim_{\mvec{Q}_{L,R}\rightarrow Q} \mvec{G}(\mvec{Q}_L,\mvec{Q}_R) = \mvec{F}(\mvec{Q})
+      \end{align*}
+    \end{column}
+  
+    \begin{column}{0.5\linewidth}
+      \begin{figure}    
+        \setkeys{Gin}{width=0.7\linewidth,keepaspectratio}
+        \incfig{FV-1D-grid.pdf}
+      \end{figure}    
+    \end{column}
+  \end{columns}
+  \mypause%
+  In terms of the numerical flux function the FV update formula
+  becomes
+  \begin{align*}
+    \pfrac{\mvec{Q}_j}{t} + \frac{\mvec{G}(\mvec{Q}_{j+1/2}^+,\mvec{Q}_{j+1/2}^-) - \mvec{G}(\mvec{Q}_{j-1/2}^+,\mvec{Q}_{j-1/2}^-)}{\Delta x} = 0    
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Steps in constructing finite-volume method}
+  \begin{align*}
+    \pfrac{\mvec{Q}_j}{t} + \frac{\mvec{G}(\mvec{Q}_{j+1/2}^+,\mvec{Q}_{j+1/2}^-) - \mvec{G}(\mvec{Q}_{j-1/2}^+,\mvec{Q}_{j-1/2}^-)}{\Delta x} = 0    
+  \end{align*}
+  Hence, to completely specify a finite-volume scheme we must design
+  algorithms for each of the following three steps:
+  \begin{itemize}\cramplist
+  \item {\bf Step 1}: A {\bf recovery scheme} (possibly with limiters)
+    to compute the left/right interface values $\mvec{Q}^{\pm}$ at
+    each interface using a set of cell-average values around that
+    interface,%
+    \mypause%
+  \item {\bf Step 2}: A {\bf numerical flux function} that takes the
+    left/right values and returns a consistent approximation to the
+    physical flux, and%
+    \mypause%
+  \item {\bf Step 3}: A {\bf time-stepping scheme} to advance the
+    solution in time and compute the cell-averages at the next
+    time-step.
+  \end{itemize}
+\end{frame}  
+
+\begin{frame}{Recovery scheme: fourth-order centered scheme}
+\end{frame}
+
+\end{document}
+
+
+\begin{frame}{}
+\end{frame}
+
+\begin{columns}
+  
+  \begin{column}{0.6\linewidth}
+  \end{column}
+  
+  \begin{column}{0.4\linewidth}
+    \includegraphics[width=\linewidth]{fig/Kinsey_2011_Pfus_vs_T.pdf}
+  \end{column}
+\end{columns}
+
+% ----------------------------------------------------------------

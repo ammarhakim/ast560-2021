@@ -222,7 +222,7 @@
     \mypause%
   \item In general, depending on the order of the scheme one has to
     \emph{recover} $Q(x)$ and $V(x)$ to sufficiently high order in a
-    cell, multiply then and then compute the average of the
+    cell, multiply them and then compute the average of the
     product. Potential complications when solutions are not smooth
     enough.
   \item Almost never done! However, it may be important when trying to
@@ -285,8 +285,217 @@
   \end{itemize}
 \end{frame}  
 
-\begin{frame}{Recovery scheme: fourth-order centered scheme}
+\begin{frame}{Some notation for use in recovery stencils}
+  \footnotesize%
+  Example: symmetric recovery across two cells can be written as
+  \begin{align*}
+    Q_{i+1/2} = \frac{1}{2}(Q_{i+1}+Q_j) = \frac{1}{2}(d_p + d_m) Q_{i+1/2}
+  \end{align*}
+  Example: central difference scheme for second derivative:
+  \begin{align*}
+    \frac{\partial^2 Q_i}{\partial x^2}
+    = \frac{1}{\Delta x^2} (Q_{i+1} - 2 Q_j + Q_{i-1})
+    = \frac{1}{\Delta x^2} (\Delta_p - 2I + \Delta_m) Q_i
+  \end{align*}      
+  \begin{figure}
+    \setkeys{Gin}{width=0.75\linewidth,keepaspectratio}
+    \incfig{stencil-ops.png}
+    \caption{Basic indexing operators to move from cell to cell, face
+      to cell and cell to face.}
+  \end{figure}
 \end{frame}
+
+\begin{frame}{Recovery scheme: four-cell stencil, centered scheme}
+  \footnotesize%
+  \begin{figure}
+    \setkeys{Gin}{width=0.35\linewidth,keepaspectratio}
+    \incfig{4c-stencil.png}
+  \end{figure}  
+  \begin{itemize}
+  \item To construct a four-cell symmetric stencil recovery across an
+    interface we will use a four-cell stencil:
+    $\{d_{2m}, d_m, d_p, d_{2p} \}$%
+    \mypause%
+  \item Setup a local coordinate system with $x=0$ at the interface
+    and assume a polynomial recovery
+    \begin{align*}
+      p(x) = p_0 + p_1 x + p_2 x^2 + p_3 x^3
+    \end{align*}
+    \mypause%
+  \item Match the cell-averages of $p(x)$ in each of the cells
+    $\{d_{2m}, d_m, d_p, d_{2p} \}$ to get a system of linear
+    equations. Solve this system to determine $p_0, p_1, p_2, p_3$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Recovery scheme: four-cell stencil, centered scheme}
+  Solving the system of four equations for the four coefficients
+  $p_i$, $i=0,\ldots,3$ yields:
+  \begin{align*}
+    p_0 &=  \frac{1}{12}(-d_{2m} + 7 d_m + 7 d_p - d_{2p}) Q \\
+    p_1 &=  \frac{1}{12\Delta x}(d_{2m} - 15 d_m + 15 d_p - d_{2p}) Q \\
+    p_2 &=  \frac{1}{4 \Delta x^2}(d_{2m} - d_m - d_p + d_{2p}) Q \\
+    p_4 &=  \frac{1}{6 \Delta x^3}(d_{2m} - 3d_m + 3 d_p - d_{2p}) Q.
+  \end{align*}
+  \begin{itemize}
+  \item Notice: stencils of the even coefficients are \emph{symmetric}
+    and the odd coefficients are \emph{anti-symmetric}.%
+    \mypause%
+  \item To compute the interface value we do not really need all of
+    these coefficients but only need to evaluate the recovery
+    polynomial at $x=0$, i.e we only need $p(0) = p_0$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Recovery scheme: four-cell stencil, centered scheme}
+  \small%
+  To compute the interface value we do not really need all of these
+  coefficients but only need to evaluate the recovery polynomial at
+  $x=0$, i.e we only need $p(0) = p_0$. Hence, the interface value can
+  be computed from
+  \begin{align*}
+    Q^+ = Q^- = \frac{1}{12}(-d_{2m} + 7 d_m + 7 d_p - d_{2p}) Q.
+  \end{align*}
+  Note that due the symmetric nature of the stencil we have only a
+  \emph{single} value at the interface. This means that the numerical
+  flux function at an interface is simply
+  \begin{align*}
+    G(Q,Q) = F(Q)
+  \end{align*}
+  from consistency requirements.%
+  \mypause%
+  This completes the spatial finite-volume discretization! The scheme
+  one gets from this is very accurate (even ``structure preserving''
+  for Maxwell equations), though not very robust in presence of sharp
+  gradients. (No Free Lunch)
+\end{frame}
+
+\begin{frame}{How accurate is any given scheme?}
+  To fix ideas consider we wish to solve the advection equation
+  \begin{align*}
+    \pfrac{f}{t} + \pfrac{f}{x} = 0
+  \end{align*}
+  Using the four-cell symmetric recovery scheme to compute interface
+  values in the FV update formula we get the semi-discrete scheme
+  \emph{five-cell stencil} update formula:
+  \begin{align*}
+    \pfrac{f_j}{t}
+    = -\frac{1}{\Delta x}\int_{x_{j-1/2}}^{x_{j+1//2}}
+    \pfrac{f}{x} \thinspace dx
+    =
+    -\frac{1}{12 \Delta x} (f_{j-2} - 8f_{j-1} + 8 f_{j+1} - f_{j+2})
+  \end{align*}
+  How accurate is this scheme, or what is its order of convergence?
+\end{frame}
+
+\begin{frame}{How accurate is any given scheme? Use Taylor series}
+  \footnotesize%
+  \begin{itemize}\cramplist
+  \item Take a Taylor series polynomial around the cell center of cell
+    $I_j = [-\Delta x/2, \Delta x/2]$ locally at $x=0$
+    \begin{align*}
+      T(x) = \sum_{n=0} \frac{T_n}{n!} x^n.
+    \end{align*}
+    \mypause%
+  \item Compute the cell average of this polynomial in each of the
+    stencil cells $\{\Delta_{2m}, \Delta_m, \Delta_p, \Delta_{2p} \}$
+    \mypause%
+  \item Substitute these averages in the update formula to compute the
+    mean value of the flux gradient in the cell
+    $I_j = [-\Delta x/2, \Delta x/2]$
+    \begin{align*}
+      \frac{1}{12 \Delta x} (\Delta_{2m} - 8\Delta_m + 8 \Delta_p -
+      \Delta_{2p}) T
+      =
+      T_1 + \frac{\Delta x^2}{24} T_3  - \frac{21 \Delta x^4}{640} T_5 + \ldots
+    \end{align*}
+    \mypause%
+  \item Subtract the exact cell average of the gradient of the Taylor
+    polynomial in cell $I_j = [-\Delta x/2, \Delta x/2]$, i.e.
+    \begin{align*}
+      \frac{1}{\Delta x}\int_{-\Delta x/2}^{\Delta x/2} \pfrac{T}{x} \thinspace dx
+      =
+      T_1 + \frac{\Delta x^2}{24} T_3  + \frac{\Delta x^4}{1920} T_5 + \ldots
+    \end{align*}
+    from the stencil computed value. The remainder term is the error
+    of the scheme.
+  \end{itemize}  
+\end{frame}
+
+\begin{frame}{Symmetric four-cell recovery scheme is fourth-order
+    accurate}
+  The above procedure (needs use of a compute algebra system to
+  simplify the computations) shows that the symmetric four-cell
+  recovery scheme has error that goes like
+  \begin{align*}
+      \frac{\Delta x^4}{30} T_5 + O(\Delta x^6)
+  \end{align*}
+  showing the scheme converges with \emph{fourth-order} accuracy
+  $O(\Delta x^4)$ for linear advection equation. (Reducing $\Delta x$
+  by 2 reduces error by a factor of $16$).
+
+\end{frame}
+
+\begin{frame}{Accuracy is not everything: dispersion and diffusion}
+  \footnotesize
+  \begin{itemize}
+  \item High-order symmetric schemes like the one we derived are very
+    accurate (even ``structure preserving'' for some problems) but not
+    robust.
+    \mypause%
+  \item Two other properties of the scheme are important to
+    understand: \emph{dispersion} and \emph{diffusion}. For this we
+    wil derive a \emph{numerical dispersion relation} analogous to
+    dispersion relation we derived for linearized systems.
+    \mypause%
+  \item Consider a single mode $f(x) = e^{ik x}$ where $k$ is the
+    wavenumber. Compute the cell-average of the mode on each of the
+    cells in the stencil, plug into the stencil formula to derive the
+    \emph{numerical dispersion relation}
+    \begin{align*}
+      i\overline{k} = \sum_{m=-N}^{M} c_m e^{i k m \Delta x}
+    \end{align*}
+    where we have written the stencil in the generic form
+    \begin{align*}
+      \frac{1}{\Delta x}\sum_{m = -N}^{M} c_m f_{j+m}
+    \end{align*}
+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Symmetric four-cell recovery scheme has no diffusion!}
+  \small
+  \begin{columns}
+    
+    \begin{column}{0.6\linewidth}
+      \begin{itemize}
+      \item Note that the numerical dispersion relation will in
+        general give a \emph{complex} effective wavenumber
+        $\overline{k}$.
+      \item The dispersion relation for a hyperbolic equation is
+        $\omega = \lambda k$. Hence, the \emph{real part} of
+        $\overline{k}$ represents dispersion and \emph{imaginary part}
+        of $\overline{k}$ represents diffusion/growth. Obviously, we
+        want imaginary part to be \emph{negative} to avoid solution
+        blow-up!
+      \item The four-cell symmetric stencil has \emph{no imaginary
+          part} of $\overline{k}$. This related to the fact that it is
+        \emph{symmetric} (anti-symmetric stencil coefficients). This
+        is not necessarily a good thing!
+      \end{itemize}
+    \end{column}
+  
+    \begin{column}{0.4\linewidth}
+      \begin{figure}
+        \includegraphics[width=\linewidth]{5p-kbar.png}
+        \caption{Real-part of numerical dispersion relation for
+          four-cell recovery scheme. Notice the strong dispersion for
+          higher-$k$ modes}
+      \end{figure}
+    \end{column}
+  \end{columns}
+
+\end{frame}  
 
 \end{document}
 

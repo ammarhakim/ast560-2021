@@ -108,14 +108,16 @@
 \begin{document}
 \maketitle
 
+\section*{Summary}
+
 Intuitively, hyperbolic PDEs describe phenomena that propagate with
 finite speed. One way to check this is to \emph{linearize} the
-equations and compute the dispersion relation for propagation of small
-amplitude waves. A system linearized $p$ hyperbolic equations will
-have dispersion relations of the form $\omega^p = c_0^p k$ where
-$c_0^p$ are the speeds computed from the equilibrium quantities. Note
-that the phase and group velocities for linear waves are the same for
-hyperbolic systems.
+equations around a uniform background and compute the dispersion
+relation for propagation of small amplitude waves. A system linearized
+$p$ hyperbolic equations will have dispersion relations of the form
+$\omega^p = c_0^p k$ where $c_0^p$ are the speeds computed from the
+equilibrium quantities. Note that the phase and group velocities for
+linear waves are the same for hyperbolic systems.
 
 \begin{definition}[Hyperbolic PDEs]
   Consider a system of conservation laws written as
@@ -133,6 +135,24 @@ hyperbolic systems.
   \emph{strictly hyperbolic} if all eigenvalues are distinct.
 \end{definition}
 
+To derive eigensystem it is sometimes easier to work in
+non-conservative (quasi-linear) form of equations. Start with
+\begin{align*}
+  \pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x} = 0.
+\end{align*}
+and introduce an invertible transform $\mvec{Q} = \varphi(\mvec{V})$
+where $\mvec{V}$ are some other variables (for example: density,
+velocity and pressure). Then the system converts to
+\begin{align*}
+  \pfrac{\mvec{V}}{t} +
+  \underbrace{(\varphi^{\prime})^{-1} \mvec{A}\varphi^{\prime}}_{\mvec{B}}
+  \pfrac{\mvec{V}}{x} = 0.
+\end{align*}
+Can easily show eigenvalues of $\mvec{A}$ are same as that of
+$\mvec{B}$ and right eigenvectors can be computed from
+$\varphi^{\prime} \mvec{r}_p$ and left eigenvectors from
+$\mvec{l}_p (\varphi^{\prime})^{-1}$.
+
 As the solution to hyperbolic PDEs can develop discontinuities we need
 to instead consider a broader class of solutions than those supported
 by the PDE (as derivatives are not defined at
@@ -143,20 +163,167 @@ discontinuities). Instead we must use the concept of
   Let $\phi(x,t)$ be a compactly supported (i.e. zero outside some
   bounded region) smooth function (enough continuous
   derivatives). Then
-  \begin{align*}
+  \begin{align}
     \int_0^\infty  \int_{-\infty}^\infty 
     \bigg[\pfrac{\phi}{t} \mvec{Q} + \pfrac{\phi}{x} \mvec{F}\bigg]\thinspace
     dx\thinspace dt
     =
     -
     \int_{-\infty}^\infty \phi(x,0) \mvec{Q}(x,0) dx.
-  \end{align*}
+    \label{eq:weak-sol}
+  \end{align}
   is called the \emph{weak-form} of the conservation law
   \eqr{\ref{eq:hyp-law}}. A function $\mvec{Q}(x,t)$ is said to be a
   weak-solution if it satisfies the weak-form for all compact, smooth
   $\phi(x,t)$.
 \end{definition}
-\noindent You should be able to derive this expression starting from
-\eqr{\ref{eq:hyp-law}}.
+
+\section*{Problem 1: Eigensystem of Euler Equations}
+
+Consider the Euler equations in 1D conservative form
+\begin{align*}
+  \frac{\partial}{\partial{t}}
+  \left[
+    \begin{matrix}
+      \rho \\
+      \rho u \\
+      E
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial}{\partial{x}}
+  \left[
+    \begin{matrix}
+      \rho u \\
+      \rho u^2 + p \\
+      (E+p)u
+    \end{matrix}
+  \right]
+  =
+  0
+\end{align*}
+where
+\begin{align*}
+  E = \frac{1}{2}\rho u^2 + \frac{p}{\gamma-1}.
+\end{align*}
+Show that these equations can also be written in the
+\emph{quasi-linear} form
+\begin{align*}
+  \pfrac{\mvec{V}}{t} + \mvec{B}\pfrac{\mvec{V}}{x} = 0
+\end{align*}
+where $\mvec{V} = [\rho, u, p]^T$ and $\mvec{B}$ is a matrix you
+should determine. Compute the eigenvalues and right eigenvectors of
+$\mvec{B}$ and use them to compute the eigenvectors of the flux
+Jacobian of the conservative system. Hence show that the Euler
+equations are indeed hyperbolic as long as $p>0$ and $\rho > 0$.
+
+\section*{Problem 2: The effect of oscillatory source terms}
+
+As discussed in class, source terms can significantly change the
+physics contained in the homogenous system. As an example consider the
+Euler equations with an oscillatory source as follows:
+\begin{align*}
+  \frac{\partial}{\partial{t}}
+  \left[
+    \begin{matrix}
+      \rho \\
+      \rho u \\
+      \rho v \\      
+      E
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial}{\partial{x}}
+  \left[
+    \begin{matrix}
+      \rho u \\
+      \rho u^2 + p \\
+      \rho u v \\
+      (E+p)u
+    \end{matrix}
+  \right]
+  =
+  \left[
+    \begin{matrix}
+      0 \\
+      \rho v\Omega \\
+      -\rho u\Omega  \\
+      0
+    \end{matrix}
+  \right]  
+\end{align*}
+where now
+\begin{align*}
+  E = \frac{1}{2}\rho (u^2+v^2) + \frac{p}{\gamma-1}
+\end{align*}
+and where $\Omega$ is a constant with units of inverse time. Linearize
+this system around a uniform non-flowing ($u_0 = v_0 = 0$) background
+$\rho_0, p_0$ and by considering solutions of the form
+$e^{-i\omega t}e^{i kx }$ derive the dispersion relation
+\begin{align*}
+  \omega = \pm (k^2 c_{s0}^2 + \Omega^2)^{1/2}
+\end{align*}
+where $c_{s0} = \sqrt{\gamma p_0/\rho_0}$. Clearly, this system only
+contains propagating but \emph{dispersive} waves, however it is not
+hyperbolic as the dispersion relation is not \emph{linear}. Derive the
+exact solution to the linearized system in terms of the perturbations
+of the x-component of the velocity $u_1(x,t)$.
+
+Finally, consider the initial velocity field
+\begin{align*}
+  u_1(x,0) = U_0 \sum_{n=0}^N \frac{i}{2n + 1} e^{i k_n x}
+\end{align*}
+for $x\in [0,1]$ and where $k_n = 2\pi (2n+1)$. For
+$N\rightarrow \infty$ this represents a step function. Take $N=100$
+and plot the exact solution of the perturbed density, $\rho_1(x,t)$,
+at $t=1000$ for $\rho_0 = p_0 = 1$, $\gamma = 2$ and $\Omega =
+10$. (If you make a movie of the exact solution in time you can see
+the initial spectrum of waves disperse and form complex patterns. For
+$\Omega = 0$ the initial condition will simply travel with sound speed
+as in this case the system becomes hyperbolic and the waves have the
+same group and phase velocities).
+
+\section*{Problem 3: Shock solution for Burgers' equation}
+
+In class we wrote down the solution to Burgers' equation for initial
+condition $u(x,0) = u_l$ for $x<0$ and $u(x,0) > u_r$ for $x>0$ and
+where $u_l > u_r$. That solution was:
+\begin{align*}
+  u(x,t) &= u_l \quad x < st \\
+  u(x,t) &= u_r \quad x > st.
+\end{align*}
+Show that this indeed is a weak-solution of the Burgers' equation,
+that is it satisfies \eqr{\ref{eq:weak-sol}}. Recall that the Burgers'
+equation is a nonlinear scalar hyperbolic PDE:
+\begin{align*}
+    \pfrac{u}{t} + \frac{\partial}{\partial x}\bigg( \frac{1}{2} u^2
+    \bigg) = 0.  
+\end{align*}
+
+\section*{Problem 4: Reimann problem for Maxwell equations}
+
+Find the exact solution to the the Reimann problem for Maxwell
+equations in 1D:
+\begin{align*}
+  \frac{\partial }{\partial t}
+  \left[
+    \begin{matrix}
+      E_y \\
+      E_z \\
+      B_z
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial }{\partial x}
+  \left[
+    \begin{matrix}
+      c^2B_z \\
+      -c^2B_y \\
+      E_y
+    \end{matrix}
+  \right]
+  =
+  0.
+\end{align*}
 
 \end{document}

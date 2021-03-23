@@ -112,13 +112,17 @@
 \maketitle
 
 Use the notes on finite-volume methods posted on Blackboard/class
-website. Write the code in any language you like. In general, for good
-software practice you should use C or C++ and make sure you check all
-your code into Github. Please do not forget that FV schemes evolve the
-cell-average solution, specially when proving energy conservation and
-checking convergence errors. Also remember that to get proper
-convergence results you need to initialize the averages to
-\emph{sufficiently high-order} using Gaussian quadrature.
+website. You need to create a Github account so you can ``fork'' the
+starting code I have written to your own repos. This code is in C++
+and does much of the grunge work for you already (reading input
+parameters, writing data) and has skeleton code for all the functions
+you need to write.
+
+Please do not forget that FV schemes evolve the cell-average solution,
+specially when proving energy conservation and checking convergence
+errors. Also remember that to get proper convergence results you need
+to initialize the averages to \emph{sufficiently high-order} using
+Gaussian quadrature. For both problems use SSP-RK3 time-stepper.
 
 \section*{Problem \arabic{probnum}: Third and fourth order Maxwell solver}
 \stepcounter{probnum}

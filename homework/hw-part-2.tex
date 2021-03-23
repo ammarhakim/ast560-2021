@@ -1,0 +1,416 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{geometry}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\geometry{verbose,letterpaper,textheight=9in,textwidth=6.5in}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{wrapfig}%%enable enable 
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{sidecap}
+\usepackage{pdfpages}
+\usepackage[font={footnotesize}]{caption}
+%\usepackage[framemethod=tikz]{mdframed}
+\def\bibfont{\footnotesize}
+%\setlength{\bibsep}{0.0pt}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+\newtheorem{principle}{Principle}
+
+% Set the margins
+\RequirePackage{geometry}
+\geometry{letterpaper,includehead,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\geometry{headsep=2ex}
+
+\newcommand{\grad}{\nabla}
+\newcommand{\ignore}[1]{}  % ignore a section.
+
+% Handy commands for notes and 'to do' items 
+\newcommand{\todo}[1]{{\color{red}\bf [TODO: #1]}}
+\newcommand{\note}[2]{{\color{blue} \textsf{[#1] #2}}}
+\newcommand\tocite[1]{{[CITE: #1]}}
+
+% For a clean copy, ignore these:
+%\newcommand{\todo}[1]{}
+%\newcommand{\note}[2]{}
+%\newcommand\tocite[1]{}
+
+%% Writing quarters
+\newcommand{\wQ}[1]{{\textcolor{white}{Q#1}}}
+\newcommand{\bQ}[1]{{Q#1}}
+
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+%% Autoscaled figures
+\newcommand{\incfig}{\centering\includegraphics}
+\setkeys{Gin}{width=0.9\linewidth,keepaspectratio}
+
+%% Commonly used macros
+\newcommand{\eqr}[1]{Eq.\thinspace(#1)}
+\newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
+% \newcommand{\pfracc}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pfraca}[1]{\frac{\partial}{\partial #1}}
+\newcommand{\pfracb}[2]{\partial #1/\partial #2}
+% \newcommand{\pfracbb}[2]{\partial^2 #1/\partial #2^2}
+% \newcommand{\spfrac}[2]{{\partial_{#1}} {#2}}
+% \newcommand{\mvec}[1]{\mathbf{#1}}
+\newcommand{\gvec}[1]{\boldsymbol{#1}}
+% \newcommand{\script}[1]{\mathpzc{#1}}
+% \newcommand{\gke}{{\tt Gkeyll}}
+\newcommand{\gcs}{\nabla_{\mvec{x}}}
+\newcommand{\gvs}{\nabla_{\mvec{v}}}
+
+% Other stuff
+%\usepackage{units}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+
+\usepackage{tabularx}
+\usepackage{mdwlist} % enumerate*, itemize* squeeze vertical space
+
+\newcommand{\comment}[1]{\textit{\textcolor{red}{#1}}}
+\renewcommand{\comment}[1]{}
+
+% Turn off red comments by uncommenting the following line:
+%\renewcommand{\comment}[1]{}
+
+%% Autoscaled figures
+%\newcommand{\incfig}{\centering\includegraphics}
+\setkeys{Gin}{width=0.9\linewidth,keepaspectratio}
+\newcommand{\gke}{{\tt Gkeyll}}
+%\newcommand{\gke}{{\textsc{Gkeyll}}}
+\newcommand{\mvec}[1]{\mathbf{#1}}
+
+%Make the items smaller
+\newcommand{\cramplist}{
+	\setlength{\itemsep}{0in}
+	\setlength{\partopsep}{0in}
+	\setlength{\topsep}{0in}}
+\newcommand{\cramp}{\setlength{\parskip}{.5\parskip}}
+\newcommand{\zapspace}{\topsep=0pt\partopsep=0pt\itemsep=0pt\parskip=0pt}
+
+\newcounter{probnum}
+\setcounter{probnum}{1}
+
+\title{Hyperbolic PDEs and Finite-Volume Methods. Homework Set I}%
+\author{Ammar Hakim}%
+\date{}%
+
+\begin{document}
+\maketitle
+
+\section*{Summary}
+
+Intuitively, hyperbolic PDEs describe phenomena that propagate with
+finite speed. One way to check this is to \emph{linearize} the
+equations around a uniform background and compute the dispersion
+relation for propagation of small amplitude waves. A system linearized
+$p$ hyperbolic equations will have dispersion relations of the form
+$\omega^p = c_0^p k$ where $c_0^p$ are the speeds computed from the
+equilibrium quantities. Note that the phase and group velocities for
+linear waves are the same for hyperbolic systems.
+
+\begin{definition}[Hyperbolic PDEs]
+  Consider a system of conservation laws written as
+  \begin{align}
+    \pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x} = 0. \label{eq:hyp-law}
+  \end{align}
+  where $\mvec{Q}$ is a vector of conserved quantities and
+  $\mvec{F}(\mvec{Q})$ is a vector of fluxes. This system is called
+  \emph{hyperbolic} if the flux Jacobian
+  \begin{align*}
+    \mvec{A} \equiv \pfrac{\mvec{F}}{\mvec{Q}}
+  \end{align*}
+  has \emph{real eigenvalues} and a \emph{complete set of linearly
+    independent} eigenvectors. A hyperbolic system is called
+  \emph{strictly hyperbolic} if all eigenvalues are distinct.
+\end{definition}
+
+To derive eigensystem it is sometimes easier to work in
+non-conservative (quasi-linear) form of equations. Start with
+\begin{align*}
+  \pfrac{\mvec{Q}}{t} + \pfrac{\mvec{F}}{x} = 0.
+\end{align*}
+and introduce an invertible transform $\mvec{Q} = \varphi(\mvec{V})$
+where $\mvec{V}$ are some other variables (for example: density,
+velocity and pressure). Then the system converts to
+\begin{align*}
+  \pfrac{\mvec{V}}{t} +
+  \underbrace{(\varphi^{\prime})^{-1} \mvec{A}\varphi^{\prime}}_{\mvec{B}}
+  \pfrac{\mvec{V}}{x} = 0.
+\end{align*}
+Can easily show eigenvalues of $\mvec{A}$ are same as that of
+$\mvec{B}$ and right eigenvectors can be computed from
+$\varphi^{\prime} \mvec{r}_p$ and left eigenvectors from
+$\mvec{l}_p (\varphi^{\prime})^{-1}$.
+
+As the solution to hyperbolic PDEs can develop discontinuities we need
+to instead consider a broader class of solutions than those supported
+by the PDE (as derivatives are not defined at
+discontinuities). Instead we must use the concept of
+\emph{weak-solutions}, defined below.
+
+\begin{definition}[Weak-solution]
+  Let $\phi(x,t)$ be a compactly supported (i.e. zero outside some
+  bounded region) smooth function (enough continuous
+  derivatives). Then
+  \begin{align}
+    \int_0^\infty  \int_{-\infty}^\infty 
+    \bigg[\pfrac{\phi}{t} \mvec{Q} + \pfrac{\phi}{x} \mvec{F}\bigg]\thinspace
+    dx\thinspace dt
+    =
+    -
+    \int_{-\infty}^\infty \phi(x,0) \mvec{Q}(x,0) dx.
+    \label{eq:weak-sol}
+  \end{align}
+  is called the \emph{weak-form} of the conservation law
+  \eqr{\ref{eq:hyp-law}}. A function $\mvec{Q}(x,t)$ is said to be a
+  weak-solution if it satisfies the weak-form for all compact, smooth
+  $\phi(x,t)$.
+\end{definition}
+
+Cast of characters: three characters appear in the problems below:
+Ms. Fivo L.  Hacker, Mr. Fido Node and Prof Symplectico. One can guess
+what point of view each of these characters represents. Also, for some
+of these problem you may/will need to use a computer algebra system.
+
+\section*{Problem \arabic{probnum}: Eigensystem of Euler Equations}
+\stepcounter{probnum}
+
+Consider the Euler equations in 1D conservative form
+\begin{align*}
+  \frac{\partial}{\partial{t}}
+  \left[
+    \begin{matrix}
+      \rho \\
+      \rho u \\
+      E
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial}{\partial{x}}
+  \left[
+    \begin{matrix}
+      \rho u \\
+      \rho u^2 + p \\
+      (E+p)u
+    \end{matrix}
+  \right]
+  =
+  0
+\end{align*}
+where
+\begin{align*}
+  E = \frac{1}{2}\rho u^2 + \frac{p}{\gamma-1}.
+\end{align*}
+Show that these equations can also be written in the
+\emph{quasi-linear} form
+\begin{align*}
+  \pfrac{\mvec{V}}{t} + \mvec{B}\pfrac{\mvec{V}}{x} = 0
+\end{align*}
+where $\mvec{V} = [\rho, u, p]^T$ and $\mvec{B}$ is a matrix you
+should determine. Compute the eigenvalues and right eigenvectors of
+$\mvec{B}$ and use them to compute the eigenvectors of the flux
+Jacobian of the conservative system. Hence show that the Euler
+equations are indeed hyperbolic as long as $p>0$ and $\rho > 0$.
+
+\section*{Problem \arabic{probnum}: The effect of oscillatory source
+  terms}
+\stepcounter{probnum}
+
+As discussed in class, source terms can significantly change the
+physics contained in the homogenous system. As an example consider the
+Euler equations with an oscillatory source as follows:
+\begin{align*}
+  \frac{\partial}{\partial{t}}
+  \left[
+    \begin{matrix}
+      \rho \\
+      \rho u \\
+      \rho v \\      
+      E
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial}{\partial{x}}
+  \left[
+    \begin{matrix}
+      \rho u \\
+      \rho u^2 + p \\
+      \rho u v \\
+      (E+p)u
+    \end{matrix}
+  \right]
+  =
+  \left[
+    \begin{matrix}
+      0 \\
+      \rho v\Omega \\
+      -\rho u\Omega  \\
+      0
+    \end{matrix}
+  \right]  
+\end{align*}
+where now
+\begin{align*}
+  E = \frac{1}{2}\rho (u^2+v^2) + \frac{p}{\gamma-1}
+\end{align*}
+and where $\Omega$ is a constant with units of inverse time. Linearize
+this system around a uniform non-flowing ($u_0 = v_0 = 0$) background
+$\rho_0, p_0$ and by considering solutions of the form
+$e^{-i\omega t}e^{i kx }$ derive the dispersion relation
+\begin{align*}
+  \omega = \pm (k^2 c_{s0}^2 + \Omega^2)^{1/2}
+\end{align*}
+where $c_{s0} = \sqrt{\gamma p_0/\rho_0}$. Clearly, this system only
+contains propagating but \emph{dispersive} waves, however it is not
+hyperbolic as the dispersion relation is not \emph{linear}. Derive the
+exact solution to the linearized system in terms of the perturbations
+of the x-component of the velocity $u_1(x,t)$.
+
+Finally, consider the initial velocity field
+\begin{align*}
+  u_1(x,0) = U_0 \sum_{n=0}^N \frac{i}{2n + 1} e^{i k_n x}
+\end{align*}
+for $x\in [0,1]$ and where $k_n = 2\pi (2n+1)$. For
+$N\rightarrow \infty$ this represents a step function. Take $N=100$
+and plot the exact solution of the perturbed density, $\rho_1(x,t)$,
+at $t=1000$ for $\rho_0 = p_0 = 1$, $\gamma = 2$ and $\Omega =
+10$. (If you make a movie of the exact solution in time you can see
+the initial spectrum of waves disperse and form complex patterns. For
+$\Omega = 0$ the initial condition will simply travel with sound speed
+as in this case the system becomes hyperbolic and the waves have the
+same group and phase velocities).
+
+\section*{Problem \arabic{probnum}: (Optional, challenging) Eigenvalues of ideal MHD equations}
+\stepcounter{probnum}
+
+The ideal-MHD equations can be written in non-conservation law form
+\begin{align*}
+  \frac{\partial \rho}{\partial t}+ \mvec{u}\cdot\nabla\rho + \rho\nabla\cdot\mathbf{u}&=0 \\
+  \frac{\partial \mathbf{u}}{\partial t}+\mathbf{u} \cdot \nabla
+  \mathbf{u}
+  +\frac{\nabla p}{\rho} &=
+                           {\frac{1}{\mu_{0}\rho}(\nabla \times \mathbf{B}) \times \mathbf{B}} \\
+    \frac{\partial p}{\partial t}+\mathbf{u} \cdot \nabla p+\gamma p
+  \nabla \cdot \mathbf{u} &= 0 \\
+  {\frac{\partial \mathbf{B}}{\partial t}-\nabla \times(\mathbf{u} \times \mathbf{B})} &= {0}
+\end{align*}
+with the constraint $\nabla\cdot\mvec{B} = 0$. Write this equation in
+quasilinear form in 1D and compute the eigenvalues, showing they are
+all real if $\rho>0$ and $p>0$.
+
+\section*{Problem \arabic{probnum}: Shock solution for Burgers'
+  equation}
+\stepcounter{probnum}
+
+In class we wrote down the solution to Burgers' equation for initial
+condition $u(x,0) = u_l$ for $x<0$ and $u(x,0) > u_r$ for $x>0$ and
+where $u_l > u_r$. That solution was:
+\begin{align*}
+  u(x,t) &= u_l \quad x < st \\
+  u(x,t) &= u_r \quad x > st.
+\end{align*}
+Show that this indeed is a weak-solution of the Burgers' equation,
+that is it satisfies \eqr{\ref{eq:weak-sol}}. Recall that the Burgers'
+equation is a nonlinear scalar hyperbolic PDE:
+\begin{align*}
+    \pfrac{u}{t} + \frac{\partial}{\partial x}\bigg( \frac{1}{2} u^2
+    \bigg) = 0.  
+\end{align*}
+
+\section*{Problem \arabic{probnum}: Reimann problem for Maxwell
+  equations}
+\stepcounter{probnum}
+
+Find the exact solution to the the Reimann problem for Maxwell
+equations in 1D:
+\begin{align*}
+  \frac{\partial }{\partial t}
+  \left[
+    \begin{matrix}
+      E_y \\
+      E_z \\
+      B_y \\
+      B_z
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial }{\partial x}
+  \left[
+    \begin{matrix}
+      c^2B_z \\
+      -c^2B_y \\
+      -E_z \\
+      E_y
+    \end{matrix}
+  \right]
+  =
+  0.
+\end{align*}
+Note you do not actually need to compute the complete eigensystem of
+these equations, though that is one way to solve the problem.
+
+\section*{Problem \arabic{probnum}: $L_2$ norm and entropy}
+\stepcounter{probnum}
+
+Prof Symplectico points out to Fivo L. Hacker that the advection
+equation for the distribution function $f(x,v,t)$ is a Hamiltonian
+system
+\begin{align*}
+  \pfrac{f}{t} + v\pfrac{f}{x} = 0
+\end{align*}
+with the Hamiltonian $H = v^2/2$. Hence, it has infinite number of
+Casimir invariants, including the $L_2$  norm
+\begin{align*}
+  \pfraca{t}\left(\frac{1}{2} f^2\right) + \pfraca{x}\left( \frac{1}{2} v f^2 \right) = 0.
+\end{align*}
+that must be preserved (even locally) by a good numerical
+scheme. Prove that this expression is indeed true but point out, as
+Fivo would, the key assumption used in deriving this expression and
+why it may not be satisfied. Instead, to achieve stability she has
+designed a scheme that \emph{decays} the $L_2$ norm, i.e.
+\begin{align*}
+  \frac{d}{dt}\int \frac{1}{2} f^2\thinspace dx\thinspace dv  \le 0.
+\end{align*}
+Using the identity $\ln(y) \le y-1$ show that Fivo's scheme, somewhat
+reassuringly, \emph{increases} the entropy, i.e.
+\begin{align*}
+  \frac{d}{dt}\int -f \ln(f) \thinspace dx\thinspace dv  \ge 0.
+\end{align*}
+
+\section*{Problem \arabic{probnum}: Changing representations}
+\stepcounter{probnum}
+
+In class we stated the principle ``when studying or designing
+numerical schemes {\bf never} confuse one solution representation for
+another.'' Unfortunatley, Fivo L. Hacker's friend Fido Node has given
+her initial conditions $f_i$, $i=1,\ldots,N$ evaluated at cell
+centers. How will she convert this data to \emph{sufficiently high
+  order} cell-average values to use in her third-order finite-volume
+code?
+
+Fivo also would like to compute the following integral
+\begin{align*}
+  E = \sum_j \int_{I_j} f g \thinspace dx
+\end{align*}
+As she learned in class this is not so simple as, in general,
+$(f g)_i \neq f_i g_i$ (that is, the cell-average of the product is
+not the product of cell-averages). How can this integral be computed
+carefully such that the underlying order of her scheme (say third
+order) can be preserved? Derive the stencil to do so.
+
+
+\end{document}

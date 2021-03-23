@@ -47,12 +47,16 @@ any other way.
 
 .. contents::
 
-Lecture Slides
---------------
+Lecture Notes and Slides
+------------------------
+
+`Notes <./_static/fv-notes.pdf>`_ covering aspects of the
+finite-volume schemes we covered in class. Work in progress!
 
 - `Lecture 1 slides <./_static/lec1.pdf>`_
 - `Lecture 2 slides <./_static/lec2.pdf>`_
 - `Lecture 3 slides <./_static/lec3.pdf>`_
+- `Lecture 4 slides <./_static/lec4.pdf>`_
 
 Homework
 --------

@@ -34,8 +34,8 @@
 \newcommand{\bQ}[1]{{Q#1}}
 
 % Uncomment appropriate command to disable/enable hiding
-%\newcommand{\mypause}{\pause}
-\newcommand{\mypause}{}
+\newcommand{\mypause}{\pause}
+%\newcommand{\mypause}{}
 \newcommand{\myb}[1]{{\color{blue} {#1}}}
 
 %% Commonly used macros
@@ -163,7 +163,7 @@
     the two states at the interface
     \begin{align*}
       \mvec{G}(\mvec{Q}_L,\mvec{Q}_R) = \frac{1}{2}
-      \left( \mvec{F}(\mvec{Q}_L + \mvec{F}(\mvec{Q}_R) \right) .
+      \left( \mvec{F}(\mvec{Q}_L) + \mvec{F}(\mvec{Q}_R) \right) .
     \end{align*}
   \item \emph{Upwind Flux} in which we choose the edge on the
     ``upwind'' side to account for direction of information flow:
@@ -178,8 +178,57 @@
     how to determine which direction information is flowing in?
     Answer: the eigensystem of the hyperbolic equation contains this!
   \end{itemize} 
+\end{frame}
 
+\begin{frame}{Numerical Flux Function: Lax flux}
+  \small%
+  \begin{itemize}
+  \item A good choice of the numerical flux function is the
+    \emph{local Lax} flux:
+    \begin{align*}
+      \mvec{G}(\mvec{Q}_L,\mvec{Q}_R) = \frac{1}{2}
+      \left( \mvec{F}(\mvec{Q}_L) + \mvec{F}(\mvec{Q}_R) \right)
+      - \frac{|\lambda|}{2}( \mvec{Q}_R - \mvec{Q}_L )
+    \end{align*}
+    where $|\lambda|$ is an estimate of the (absolute) maximum of all
+    eigenvalues at the interface.%
+    \mypause%
+  \item   For advection equation this becomes
+    \begin{align*}
+      G(f_L,f_R) = \frac{1}{2} a ( f_L + f_R ) - \frac{|a|}{2}( f_R - f_L )
+    \end{align*}
+    This works for either sign of advection speed $a$, automatically
+    giving upwinding.%
+    \mypause%
+  \item Note $|\lambda|$ is only a local (to the interface)
+    \emph{estimate}. You can use a global estimate too: orginal
+    formulation by Peter Lax (``Lax fluxes'').
+  \end{itemize}
 
+\end{frame}
+
+\begin{frame}{Numerical Flux Function: Systems of equations}
+  \small%
+  \begin{itemize}
+  \item Lax flux is a good ``first'' flux to use. However, notice it
+    only takes into account a \emph{single} piece of information:
+    maximum eigenvalue.%
+    \mypause%
+  \item For a \emph{linear system} of equations (Maxwell equation) or
+    \emph{locally linearized} nonlinear system we can instead do
+    \begin{align*}
+      G(Q_R,Q_L) = \frac{1}{2}\big(F(Q_R)+F(Q_L)\big) - \frac{1}{2}(A^+\Delta Q_{R,L} - A^-\Delta Q_{R,L})      
+    \end{align*}
+    where the \emph{fluctuations} $A^\pm\Delta Q$ are defined as
+    \begin{align*}
+      A^\pm\Delta Q_{R,L} \equiv \sum_p r^p \lambda^\pm_p (w_R^p-w_L^p) = \sum_p r^p \lambda^\pm_p l^p(Q_R-Q_L).
+    \end{align*}
+    where $\lambda_p^+ = \max(\lambda_p,0)$ and
+    $\lambda_p^- = \min(\lambda_p,0)$.%
+    \mypause%
+  \item Additional care is needed for nonlinear equations like Euler
+    or ideal MHD equations. More on this on Thursday.
+  \end{itemize}
 \end{frame}  
 
 \begin{frame}{Some notation for use in recovery stencils}
@@ -425,37 +474,61 @@
     \begin{align*}
       f_j^{n+1} = \sum_k c_k f_{j+k}^n.
     \end{align*}
-    To maintain monotonicity one can show that one must have all
-    $c_k \ge 0$. However, the condition on Taylor series to ensure
-    atleast second-order accuracy shows that at least \emph{one} of
-    the $c_k$s must be negative. Hence, by contradiction, \emph{no
-      such scheme exists}!
+    The discrete slope then is
+    \begin{align*}
+      f_{j+1}^{n+1} - f_j^{n+1} = \sum_k c_k \left( f_{j+k+1}^n - f_{j+k}^n \right).
+    \end{align*}
+    Assume that all $f_{j+1}^n - f_j^n > 0$. To maintain monotonicity
+    at next time-step hence one must have all $c_k \ge 0$.
   \end{itemize}
-  \mypause%
-  One way around this theorem: use a nonlinear scheme!
+\end{frame}
+
+\begin{frame}{Godunov's Theorem}
+  \small%
+  \begin{itemize}
+  \item First order upwind scheme:
+    \begin{align*}
+      f_j^{n+1} = f_j^n -\frac{\Delta t}{\Delta x}(f_j^n - f_{j-1}^n)
+    \end{align*}
+    this satisfies monotonicity as long as
+    ${\Delta t}/{\Delta x} \le 1$.%
+    \mypause%
+  \item Second order symmetric scheme
+    \begin{align*}
+      f_j^{n+1} = f_j^n -\frac{\Delta t}{2 \Delta x}(f_{j+1}^n - f_{j-1}^n)
+    \end{align*}
+    clearly this does not satisfy the condition of monotonicity.
+    \mypause%
+  \item In general condition on Taylor series to ensure atleast
+    second-order accuracy shows that at least \emph{one} of the $c_k$s
+    must be negative. Hence, by contradiction, \emph{no such scheme
+      exists}!
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Godunov's Theorem: Unfortunate Consequences and Workarounds}
+  \small%
   \begin{itemize}
   \item Godunov's Theorem is highly distressing: accurate
     discretization seems to preclude a scheme free from monotonicity
     violations
     \mypause%
-  \item One way around that many people realized is to start with a
-    linear scheme that is very accurate and then add some local
-    diffusion to it to control the monotonicity.
+  \item One way around is to start with a linear scheme that is very
+    accurate and then add some local diffusion to it to control the
+    monotonicity.%
     \mypause%
   \item However, Godunov's theorem shows that this ``diffusion'' must
     be dependent on the local solution itself and can't be fixed
-    \emph{a priori}. This means a monotonicity scheme must be
-    nonlinear, even for linear hyperbolic equations.
+    \emph{a priori}. This means a {\bf monotonicity preserving scheme
+      must be nonlinear}, even for linear hyperbolic equations.%
     \mypause%
   \item Leads to the concept of \emph{nonlinear limiters} that control
-    the monotonicity violations. Essentially adding diffusion to
-    high-$k$ modes. No free lunch: limiters must diffusive high-$k$
-    modes but this will inevitably lead to issues like inability to
-    capture, for example, high-$k$ turbulence spectra correctly
-    without huge grids.
+    the monotonicity violations (adding diffusion to high-$k$ modes).
+    No free lunch: limiters must diffuse high-$k$ modes but this will
+    inevitably lead to issues like inability to capture, for example,
+    high-$k$ turbulence spectra correctly without huge grids.
+  \item Major research project: interaction of shocks, boundary layers
+    and turbulence in high-Reynolds number flows.
   \end{itemize}
 \end{frame}
   

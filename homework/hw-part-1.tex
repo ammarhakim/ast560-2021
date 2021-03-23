@@ -101,6 +101,9 @@
 \newcommand{\cramp}{\setlength{\parskip}{.5\parskip}}
 \newcommand{\zapspace}{\topsep=0pt\partopsep=0pt\itemsep=0pt\parskip=0pt}
 
+\newcounter{probnum}
+\setcounter{probnum}{1}
+
 \title{Hyperbolic PDEs and Finite-Volume Methods. Homework Set I}%
 \author{Ammar Hakim}%
 \date{}%
@@ -178,7 +181,13 @@ discontinuities). Instead we must use the concept of
   $\phi(x,t)$.
 \end{definition}
 
-\section*{Problem 1: Eigensystem of Euler Equations}
+Cast of characters: three characters appear in the problems below:
+Ms. Fivo L.  Hacker, Mr. Fido Node and Prof Symplectico. One can guess
+what point of view each of these characters represents. Also, for some
+of these problem you may/will need to use a computer algebra system.
+
+\section*{Problem \arabic{probnum}: Eigensystem of Euler Equations}
+\stepcounter{probnum}
 
 Consider the Euler equations in 1D conservative form
 \begin{align*}
@@ -217,7 +226,9 @@ $\mvec{B}$ and use them to compute the eigenvectors of the flux
 Jacobian of the conservative system. Hence show that the Euler
 equations are indeed hyperbolic as long as $p>0$ and $\rho > 0$.
 
-\section*{Problem 2: The effect of oscillatory source terms}
+\section*{Problem \arabic{probnum}: The effect of oscillatory source
+  terms}
+\stepcounter{probnum}
 
 As discussed in class, source terms can significantly change the
 physics contained in the homogenous system. As an example consider the
@@ -283,7 +294,27 @@ $\Omega = 0$ the initial condition will simply travel with sound speed
 as in this case the system becomes hyperbolic and the waves have the
 same group and phase velocities).
 
-\section*{Problem 3: Shock solution for Burgers' equation}
+\section*{Problem \arabic{probnum}: (Optional, challenging) Eigenvalues of ideal MHD equations}
+\stepcounter{probnum}
+
+The ideal-MHD equations can be written in non-conservation law form
+\begin{align*}
+  \frac{\partial \rho}{\partial t}+ \mvec{u}\cdot\nabla\rho + \rho\nabla\cdot\mathbf{u}&=0 \\
+  \frac{\partial \mathbf{u}}{\partial t}+\mathbf{u} \cdot \nabla
+  \mathbf{u}
+  +\frac{\nabla p}{\rho} &=
+                           {\frac{1}{\mu_{0}\rho}(\nabla \times \mathbf{B}) \times \mathbf{B}} \\
+    \frac{\partial p}{\partial t}+\mathbf{u} \cdot \nabla p+\gamma p
+  \nabla \cdot \mathbf{u} &= 0 \\
+  {\frac{\partial \mathbf{B}}{\partial t}-\nabla \times(\mathbf{u} \times \mathbf{B})} &= {0}
+\end{align*}
+with the constraint $\nabla\cdot\mvec{B} = 0$. Write this equation in
+quasilinear form in 1D and compute the eigenvalues, showing they are
+all real if $\rho>0$ and $p>0$.
+
+\section*{Problem \arabic{probnum}: Shock solution for Burgers'
+  equation}
+\stepcounter{probnum}
 
 In class we wrote down the solution to Burgers' equation for initial
 condition $u(x,0) = u_l$ for $x<0$ and $u(x,0) > u_r$ for $x>0$ and
@@ -300,7 +331,9 @@ equation is a nonlinear scalar hyperbolic PDE:
     \bigg) = 0.  
 \end{align*}
 
-\section*{Problem 4: Reimann problem for Maxwell equations}
+\section*{Problem \arabic{probnum}: Reimann problem for Maxwell
+  equations}
+\stepcounter{probnum}
 
 Find the exact solution to the the Reimann problem for Maxwell
 equations in 1D:
@@ -310,6 +343,7 @@ equations in 1D:
     \begin{matrix}
       E_y \\
       E_z \\
+      B_y \\
       B_z
     \end{matrix}
   \right]
@@ -319,11 +353,64 @@ equations in 1D:
     \begin{matrix}
       c^2B_z \\
       -c^2B_y \\
+      -E_z \\
       E_y
     \end{matrix}
   \right]
   =
   0.
 \end{align*}
+Note you do not actually need to compute the complete eigensystem of
+these equations, though that is one way to solve the problem.
+
+\section*{Problem \arabic{probnum}: $L_2$ norm and entropy}
+\stepcounter{probnum}
+
+Prof Symplectico points out to Fivo L. Hacker that the advection
+equation for the distribution function $f(x,v,t)$ is a Hamiltonian
+system
+\begin{align*}
+  \pfrac{f}{t} + v\pfrac{f}{x} = 0
+\end{align*}
+with the Hamiltonian $H = v^2/2$. Hence, it has infinite number of
+Casimir invariants, including the $L_2$  norm
+\begin{align*}
+  \pfraca{t}\left(\frac{1}{2} f^2\right) + \pfraca{x}\left( \frac{1}{2} v f^2 \right) = 0.
+\end{align*}
+that must be preserved (even locally) by a good numerical
+scheme. Prove that this expression is indeed true but point out, as
+Fivo would, the key assumption used in deriving this expression and
+why it may not be satisfied. Instead, to achieve stability she has
+designed a scheme that \emph{decays} the $L_2$ norm, i.e.
+\begin{align*}
+  \frac{d}{dt}\int \frac{1}{2} f^2\thinspace dx\thinspace dv  \le 0.
+\end{align*}
+Using the identity $\ln(y) \le y-1$ show that Fivo's scheme, somewhat
+reassuringly, \emph{increases} the entropy, i.e.
+\begin{align*}
+  \frac{d}{dt}\int -f \ln(f) \thinspace dx\thinspace dv  \ge 0.
+\end{align*}
+
+\section*{Problem \arabic{probnum}: Changing representations}
+\stepcounter{probnum}
+
+In class we stated the principle ``when studying or designing
+numerical schemes {\bf never} confuse one solution representation for
+another.'' Unfortunatley, Fivo L. Hacker's friend Fido Node has given
+her initial conditions $f_i$, $i=1,\ldots,N$ evaluated at cell
+centers. How will she convert this data to \emph{sufficiently high
+  order} cell-average values to use in her third-order finite-volume
+code?
+
+Fivo also would like to compute the following integral
+\begin{align*}
+  E = \sum_j \int_{I_j} f g \thinspace dx
+\end{align*}
+As she learned in class this is not so simple as, in general,
+$(f g)_i \neq f_i g_i$ (that is, the cell-average of the product is
+not the product of cell-averages). How can this integral be computed
+carefully such that the underlying order of her scheme (say third
+order) can be preserved? Derive the stencil to do so.
+
 
 \end{document}

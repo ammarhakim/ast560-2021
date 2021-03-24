@@ -61,6 +61,14 @@ finite-volume schemes we covered in class. Work in progress!
 Homework
 --------
 
+.. figure:: ./_static/fivo-l-hacker.png
+  :class: align-right
+  :scale: 80%
+
+  "Gacha Life" character drawn by Sophia Hakim (10 YO) to represent
+  homework character Fivo L. Hacker ("Finite Volume Hacker").
+
+
 My goal in setting homework is to review material covered in
 class. Due to the pandemic forced remote learning it is hard to focus
 and learn as much as one really should in a class like this. I hope

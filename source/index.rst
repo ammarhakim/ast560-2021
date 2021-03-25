@@ -57,6 +57,7 @@ finite-volume schemes we covered in class. Work in progress!
 - `Lecture 2 slides <./_static/lec2.pdf>`_
 - `Lecture 3 slides <./_static/lec3.pdf>`_
 - `Lecture 4 slides <./_static/lec4.pdf>`_
+- `Lecture 5 slides <./_static/lec5.pdf>`_
 
 Homework
 --------

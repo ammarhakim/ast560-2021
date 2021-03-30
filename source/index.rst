@@ -45,6 +45,10 @@ topic one needs to write a lot of code under the supervision of a
 "Master Craftsman". It is hard to learn the real details of the field
 any other way.
 
+A nice summary of the concepts of the finite-volume schemes is given
+in the paper `"A one-sided view" <./_static/Roe-60th.pdf>`_ by Roe,
+LeVeque and van Leer.
+
 .. contents::
 
 Lecture Notes and Slides
@@ -58,6 +62,7 @@ finite-volume schemes we covered in class. Work in progress!
 - `Lecture 3 slides <./_static/lec3.pdf>`_
 - `Lecture 4 slides <./_static/lec4.pdf>`_
 - `Lecture 5 slides <./_static/lec5.pdf>`_
+- `Lecture 6 slides <./_static/lec6.pdf>`_
 
 Homework
 --------

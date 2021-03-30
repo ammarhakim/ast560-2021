@@ -34,8 +34,8 @@
 \newcommand{\bQ}[1]{{Q#1}}
 
 % Uncomment appropriate command to disable/enable hiding
-%\newcommand{\mypause}{\pause}
-\newcommand{\mypause}{}
+\newcommand{\mypause}{\pause}
+%\newcommand{\mypause}{}
 \newcommand{\myb}[1]{{\color{blue} {#1}}}
 
 %% Commonly used macros
@@ -97,6 +97,7 @@
 \end{frame}
 
 \begin{frame}{Nonlinear flux limiters: Getting around Godunov's Theorem}
+  \small%
   To get around Godunov's Theorem we need to construct a
   \emph{nonlinear scheme}, even for linear equations. One apporach is
   to use nonlinear flux-limiters:
@@ -105,12 +106,20 @@
   \end{align*}
   where $\phi(r)>0$ is a \emph{limiter} function: chooses between
   \emph{high-order} and \emph{low-order} flux.
+  \mypause%
   \begin{itemize} 
   \item What are the low- and high-order fluxes? For high-order
-    fluxes: use either symmetric or upwind-biased recovery to
-    construct the flux. For low-order use first-order upwind-biased
-    fluxes.
+    fluxes: use either symmetric or higher-order upwind-biased
+    recovery to construct the flux. For low-order use first-order
+    upwind fluxes.
   \end{itemize}
+  \mypause%
+  The first-order upwind flux is ``Total-Variation Diminishing''
+  (TVD), $\textrm{TV}(f^{n+1}) \le \textrm{TV}(f^n)$ where
+  ``Total-Variation'' is defined as:
+  \begin{align*}
+    \textrm{TV}(f) = \sum_j | f_{j+1} - f_{j} |
+  \end{align*}
 \end{frame}
 
 \begin{frame}{Nonlinear flux limiters}
@@ -124,9 +133,8 @@
         r_{j+1/2} = \frac{\textrm{\textrm{slope at upwind-edge}}}{\textrm{slope at } j+1/2}
       \end{align*}
       (For systems of equations one needs limit each eigenvector
-      instead). With this, choose a function that maintains
-      \emph{total-variation diminishing} (TVD) property. Eg, min-mod
-      limiter
+      instead). With this, choose a function that maintains TVD
+      property. Eg, min-mod limiter
       \begin{align*}
         \phi(r) = \max\big(0, \min(2r, (1+r)/2,2) \big).
       \end{align*}
@@ -848,10 +856,8 @@
   \end{align*}
   This weak-form has certain advantages as the second term does not
   contain derivatives (which may be discontinuous at cell
-  boundary). (Explicit formula for $p=0$ case)
+  boundary).
 \end{frame}
-
-
 
 \end{document}
 
